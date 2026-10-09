@@ -138,3 +138,83 @@ def install_security(app, password, secret_key, secure_cookie=True):
         return redirect('/login')
 
     return limiter
+
+
+def install_public_security(app):
+    """No login/session secrets. Basic abuse limits, not access control.
+
+    Visitors provide their own AddLiveTag key for each request. Limits are global
+    to one worker; this public mode is not designed for a large public service.
+    """
+    from urllib.parse import urlsplit
+
+    limiter = WindowLimiter()
+    slots = threading.BoundedSemaphore(1)
+    limits = {'/api/check': 5, '/api/history': 10, '/api/import': 15,
+              '/api/export': 15, '/api/history/export': 10, '/api/analyze': 30}
+
+    @app.context_processor
+    def public_context():
+        return {'deployment_mode': False}
+
+    @app.before_request
+    def public_guard():
+        if request.method not in ('GET', 'HEAD', 'OPTIONS'):
+            origin = request.headers.get('Origin')
+            allowed = False
+            if origin:
+                try:
+                    parsed = urlsplit(origin)
+                    allowed = parsed.scheme in ('https', 'http') and parsed.netloc.lower() == request.host.lower() and not parsed.username
+                except ValueError:
+                    pass
+            else:
+                allowed = request.headers.get('Sec-Fetch-Site') == 'same-origin'
+            if not allowed:
+                return jsonify(error='Yêu cầu phải được gửi từ giao diện của tool. Hãy mở đường link website trực tiếp.'), 403
+        if request.path in limits and request.method == 'POST':
+            if not limiter.allow(('public-route', request.path), limits[request.path]):
+                r = jsonify(error='Tool đạt giới hạn dùng chung. Chờ một phút rồi thử lại.', retryAfter=60)
+                r.status_code = 429
+                r.headers['Retry-After'] = '60'
+                return r
+            if not slots.acquire(blocking=False):
+                return jsonify(error='Tool đang bận xử lý yêu cầu khác. Vui lòng thử lại sau.', retryAfter=15), 429
+            g.public_slot = True
+        return None
+
+    @app.teardown_request
+    def public_release(exc):
+        if getattr(g, 'public_slot', False):
+            slots.release()
+            g.public_slot = False
+
+    def public_headers(response):
+        response.headers['Cache-Control'] = 'no-store'
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['Referrer-Policy'] = 'no-referrer'
+        response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['X-Robots-Tag'] = 'noindex, nofollow'
+        response.headers['Permissions-Policy'] = 'camera=(), microphone=(), geolocation=()'
+        response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000'
+        # Remove a session cookie from the previous password-protected version.
+        if 'linkscope_session' in request.cookies:
+            response.delete_cookie('linkscope_session', secure=True, httponly=True, samesite='Lax')
+        return response
+
+    app.after_request_funcs.setdefault(None, []).insert(0, public_headers)
+
+    @app.get('/healthz')
+    def public_health():
+        return {'status': 'ok'}
+
+    @app.get('/login')
+    def old_login():
+        return redirect('/')
+
+    @app.get('/robots.txt')
+    def public_robots():
+        return app.response_class('User-agent: *\nDisallow: /\n', mimetype='text/plain')
+
+    return limiter

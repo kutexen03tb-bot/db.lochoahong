@@ -1,0 +1,49 @@
+﻿CẬP NHẬT LINKSCOPE — BỎ MẬT KHẨU WEBSITE
+
+Gói này là bản vá cho repository LinkScope-Online-Render đã upload trước đó.
+Không thay bằng repository mới, không tạo một Render service mới.
+
+1. Giải nén LinkScope-Cap-Nhat-Bo-Mat-Khau.zip.
+2. Vào repository GitHub hiện tại → Add file → Upload files.
+3. Upload 5 FILE sau vào cùng vị trí với các file cũ (ghi đè):
+   deploy_app.py
+   online_security.py
+   render.yaml
+   requirements-render.txt
+   gunicorn.conf.py
+4. Commit changes.
+5. Render → service hiện tại → Settings:
+   Build Command:
+   pip install -r requirements-render.txt
+
+   Start Command:
+   gunicorn --config gunicorn.conf.py deploy_app:app
+
+   Health Check Path: /healthz
+6. Save nếu có thay đổi → Manual Deploy → Clear build cache & deploy.
+7. Khi service báo Live, mở đường link website trực tiếp.
+
+KHÔNG CÒN CẦN LINKSCOPE_PASSWORD HOẶC SECRET_KEY
+Bạn có thể xóa hai biến đó trong Environment. Nếu vẫn giữ, bản mới không đọc chúng.
+Phải upload đủ deploy_app.py VÀ online_security.py; thiếu một file sẽ lỗi import.
+Build Command vẫn cần requirements-render.txt để cài Gunicorn, xử lý lỗi
+“gunicorn: command not found” bạn đang gặp. Bỏ mật khẩu không tự sửa lỗi thư viện.
+Không sửa API Key hoặc đưa API Key vào mã nguồn.
+
+API KEY ADDLIVETAG VẪN BẮT BUỘC
+Mở website không cần đăng nhập. Khi kiểm tra sản phẩm, mỗi người tự nhập key.
+Tool không lấy key của chủ website làm key dùng chung và không lưu sẵn key.
+
+LƯU Ý
+Bất kỳ ai có link đều mở được website. Vẫn có giới hạn yêu cầu, kiểm tra nguồn
+request của trình duyệt, giới hạn một tác vụ API/import/export nặng đồng thời.
+Các kiểm tra này không thay thế đăng nhập: người khác vẫn có thể sử dụng tool
+với key của họ và tiêu tài nguyên hosting dùng chung.
+Các hạn mức là trong bộ nhớ, chỉ dùng 1 worker/instance. Đây là bản dùng nhẹ,
+không phải dịch vụ công khai quy mô lớn hay hệ thống đã kiểm toán bảo mật.
+Dữ liệu từng tab không được công khai cho tab/người khác. Không đóng/tải lại tab
+khi chưa xuất Excel. API bên thứ ba vẫn có thể từ chối key hoặc IP hosting.
+
+Đã kiểm thử bản vá ở môi trường local: mở trang không mật khẩu/secret, rà soát
+link, vẫn yêu cầu key khi gọi dữ liệu, chặn request khác nguồn và giới hạn 429.
+Chưa được triển khai tự động vào tài khoản Render của bạn.

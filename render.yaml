@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: linkscope-private
+    name: linkscope-private  # Keep existing Blueprint service name; website login is removed.
     runtime: python
     plan: free
     region: singapore
@@ -8,9 +8,5 @@ services:
     startCommand: gunicorn --config gunicorn.conf.py deploy_app:app
     healthCheckPath: /healthz
     envVars:
-      - key: SECRET_KEY
-        generateValue: true
-      - key: LINKSCOPE_PASSWORD
-        sync: false
       - key: PYTHONUNBUFFERED
         value: "1"
