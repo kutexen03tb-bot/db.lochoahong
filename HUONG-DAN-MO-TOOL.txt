@@ -1,0 +1,37 @@
+﻿LINKSCOPE — MỞ TOOL BẰNG NHẤP ĐÚP (WINDOWS)
+
+1. Tải file LinkScope-Nhap-Dup-De-Chay.zip.
+2. Bấm chuột phải vào ZIP → Extract All / Giải nén tất cả.
+3. Mở thư mục LinkScope đã giải nén.
+4. Nhấp đúp KHOI-DONG-LINKSCOPE.bat.
+5. Chờ trình duyệt tự mở, rồi nhập API Key và danh sách sản phẩm.
+
+LẦN ĐẦU
+- Cần Python 3.10 trở lên. Nếu chưa có, file mở trang tải Python chính thức.
+- Cài Python; đánh dấu “Add python.exe to PATH” nếu trình cài đặt có mục này.
+- Nhấp đúp file khởi động lần nữa sau khi cài Python.
+- Cần Internet để cài thư viện và để gọi API thực tế.
+- Tool tạo môi trường riêng trong thư mục .venv, không cần quyền quản trị.
+- Không chạy ngay trong cửa sổ ZIP; phải giải nén cả bộ.
+
+CÁC LẦN SAU
+- Chỉ nhấp đúp KHOI-DONG-LINKSCOPE.bat.
+- Không cài lại thư viện nếu môi trường và requirements không thay đổi.
+- Nếu tool đang chạy, nhấp đúp sẽ mở lại trang đang chạy, không tạo server mới.
+- Giữ cửa sổ lệnh mở trong lúc dùng; bấm Ctrl+C tại đó để dừng server.
+- Trình duyệt sẽ mở một địa chỉ http://127.0.0.1:PORT/ với cổng còn trống.
+- Nếu trình duyệt không tự mở, copy địa chỉ hiển thị trong cửa sổ lệnh.
+
+API KEY
+Lấy tại https://addlivetag.com/tool/api-key.php sau khi đăng nhập.
+Dán key trực tiếp vào tool, không gửi vào chat. File khởi động không chứa key.
+
+AN TOÀN & DỮ LIỆU
+Server bản nhấp đúp chỉ nhận kết nối trên máy này (127.0.0.1).
+Key/danh sách vẫn được gửi tới nhà cung cấp API khi bạn bấm kiểm tra.
+Xuất Excel trước khi đóng/tải lại trang vì dữ liệu không được lưu bền vững.
+Đây là mã nguồn Python + file BAT, không phải file EXE độc lập.
+Chỉ chạy file từ nguồn bạn tin tưởng; không cần tắt antivirus hoặc quyền bảo vệ Windows.
+
+Khắc phục: nếu thư mục từng bị di chuyển khiến môi trường .venv lỗi,
+hãy dừng tool, xóa riêng thư mục .venv rồi nhấp đúp file khởi động để tạo lại.

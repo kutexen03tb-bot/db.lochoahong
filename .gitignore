@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.linkscope-runtime.json
+.linkscope-launch.lock
+
+.env
+.env.*
+*.xlsx
+*.csv
+*.log
+*.zip

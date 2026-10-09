@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: linkscope-private
+    runtime: python
+    plan: free
+    region: singapore
+    buildCommand: pip install -r requirements-render.txt
+    startCommand: gunicorn --config gunicorn.conf.py deploy_app:app
+    healthCheckPath: /healthz
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: LINKSCOPE_PASSWORD
+        sync: false
+      - key: PYTHONUNBUFFERED
+        value: "1"
